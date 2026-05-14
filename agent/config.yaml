@@ -1,0 +1,19 @@
+# 智能电商客服 — 智能体配置
+name: "智能电商客服"
+description: "基于退换货规则，智能回答客户问题，并自动分流至退货、换货、人工客服或闲聊流程。适用于电商平台售后客服场景，降低人工成本、提升响应效率。"
+platform: "coze"
+version: "1.0.0"
+
+# 模型配置（根据实际修改）
+model:
+  provider: ""  # 如: coze, openai, claude
+  name: ""      # 模型名称
+  temperature: 0.7
+
+# 上下文
+context:
+  max_tokens: 4096
+  memory: true
+
+# 插件列表（根据实际填写）
+plugins: []
