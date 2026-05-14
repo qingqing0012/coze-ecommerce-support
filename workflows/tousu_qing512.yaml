@@ -1,0 +1,753 @@
+schema_version: 1.0.0
+name: tousu_qing512
+id: 7638904760863506466
+description: "客服机器人投诉工作流"
+mode: workflow
+icon: plugin_icon/workflow.png
+nodes:
+    - id: "100001"
+      type: start
+      title: 开始
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Start-v2.jpg
+      description: "工作流的起始节点，用于设定启动工作流需要的信息"
+      position:
+        x: -243
+        y: -283
+      parameters:
+        node_outputs:
+            input:
+                type: string
+                value: null
+    - id: "900001"
+      type: end
+      title: 结束
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-End-v2.jpg
+      description: "工作流的最终节点，用于返回工作流运行后的结果信息"
+      position:
+        x: 2074.1239583333336
+        y: 36.771875
+      parameters:
+        terminatePlan: returnVariables
+    - id: "163034"
+      type: question
+      title: 询问用户信息
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Direct-Question-v2.jpg
+      description: "支持中间向用户提问问题,支持预置选项提问和开放式问题提问两种方式"
+      position:
+        x: -158
+        y: 107
+      parameters:
+        answer_type: text
+        dynamic_option:
+            type: string
+            value:
+                content:
+                    blockID: ""
+                    name: ""
+                    source: block-output
+                rawMeta:
+                    type: 1
+                type: ref
+        extra_output: false
+        limit: 3
+        llmParam:
+            cachingExpireTime: 259200
+            frequencyPenalty: 0
+            generationDiversity: balance
+            maxOutputTokens: 4096
+            maxTokens: 4096
+            modelName: 豆包·2.0·lite
+            modelType: 1.772546477e+09
+            parameters:
+                max_completion_tokens: 0
+            responseFormat: 2
+            store: true
+            systemPrompt: ""
+        node_outputs:
+            QUESTION_DATA:
+                type: list
+                items:
+                    type: object
+                    properties:
+                        content:
+                            type: string
+                            value: null
+                        content_type:
+                            type: string
+                            value: null
+                    value: null
+                required: true
+                value: null
+                description: 问题列表
+            USER_RESPONSE:
+                type: string
+                required: true
+                value: null
+                description: 用户本轮对话输入内容
+        option_type: static
+        options:
+            - name: ""
+            - name: ""
+        question: 给您带来的不便请您谅解，请您提供我订单号或者手机号，让我帮您查询一下
+    - id: "182485"
+      type: condition
+      title: 用户的信息是否存在
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Condition-v2.jpg
+      description: "连接多个下游分支，若设定的条件成立则仅运行对应的分支，若均不成立则只运行“否则”分支"
+      position:
+        x: 283
+        y: -40
+      parameters:
+        branches:
+            - condition:
+                conditions:
+                    - left:
+                        input:
+                            type: list
+                            items:
+                                type: object
+                                properties:
+                                    item:
+                                        type: string
+                                        value: null
+                                    order_status:
+                                        type: string
+                                        value: null
+                                value: null
+                            value:
+                                path: outputList
+                                ref_node: "181773"
+                      operator: 9
+                logic: 2
+    - id: "181773"
+      type: select_record
+      title: 查询用户信息
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icaon-database-select.jpg
+      description: "从表获取数据，用户可定义查询条件、选择列等，输出符合条件的数据"
+      position:
+        x: 202
+        y: -265
+      parameters:
+        databaseInfoList:
+            - databaseInfoID: "7638823436160286783"
+        node_outputs:
+            outputList:
+                type: list
+                items:
+                    type: object
+                    properties:
+                        item:
+                            type: string
+                            value: null
+                        order_status:
+                            type: string
+                            value: null
+                    value: null
+                value: null
+            rowNum:
+                type: integer
+                value: null
+        selectParam:
+            condition:
+                conditionList:
+                    - - name: left
+                        input:
+                            type: string
+                            value: "user_phone_number"
+                      - name: operation
+                        input:
+                            type: string
+                            value: "EQUAL"
+                      - name: right
+                        input:
+                            value:
+                                path: USER_RESPONSE
+                                ref_node: "163034"
+                logic: AND
+            fieldList:
+                - fieldID: 1.821238836225e+12
+                  isDistinct: false
+                - fieldID: 1.821238630402e+12
+                  isDistinct: false
+            limit: 100
+            orderByList: []
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            timeoutMs: 60000
+    - id: "174097"
+      type: question
+      title: 给出订单信息，问投诉理由
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Direct-Question-v2.jpg
+      description: "支持中间向用户提问问题,支持预置选项提问和开放式问题提问两种方式"
+      position:
+        x: 283
+        y: 189
+      parameters:
+        answer_type: text
+        dynamic_option:
+            type: string
+            value:
+                content:
+                    blockID: ""
+                    name: ""
+                    source: block-output
+                rawMeta:
+                    type: 1
+                type: ref
+        extra_output: true
+        limit: 3
+        llmParam:
+            cachingExpireTime: 259200
+            frequencyPenalty: 0
+            generationDiversity: balance
+            maxOutputTokens: 4096
+            maxTokens: 4096
+            modelName: 豆包·2.0·lite
+            modelType: 1.772546477e+09
+            parameters:
+                max_completion_tokens: 0
+            responseFormat: 2
+            store: true
+            systemPrompt: 提取输出用户投诉商品的问题
+        node_inputs:
+            - name: item
+              input:
+                type: string
+                value:
+                    path: outputList.item
+                    ref_node: "181773"
+            - name: order_status
+              input:
+                type: string
+                value:
+                    path: outputList.order_status
+                    ref_node: "181773"
+        node_outputs:
+            QUESTION_DATA:
+                type: list
+                items:
+                    type: object
+                    properties:
+                        content:
+                            type: string
+                            value: null
+                        content_type:
+                            type: string
+                            value: null
+                    value: null
+                required: true
+                value: null
+                description: 问题列表
+            USER_RESPONSE:
+                type: string
+                required: true
+                value: null
+                description: 用户本轮对话输入内容
+            output:
+                type: string
+                required: true
+                value: null
+        option_type: static
+        options:
+            - name: ""
+            - name: ""
+        question: 我查询到了您的订单，是{{item}}，目前状态是{{order_status}}，请问您对于这件商品有什么疑问么
+    - id: "148428"
+      type: question
+      title: 诉求
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Direct-Question-v2.jpg
+      description: "支持中间向用户提问问题,支持预置选项提问和开放式问题提问两种方式"
+      position:
+        x: 703
+        y: 82
+      parameters:
+        answer_type: option
+        dynamic_option:
+            type: string
+            value:
+                content:
+                    blockID: ""
+                    name: ""
+                    source: block-output
+                rawMeta:
+                    type: 1
+                type: ref
+        extra_output: false
+        limit: 3
+        llmParam:
+            cachingExpireTime: 259200
+            frequencyPenalty: 0
+            generationDiversity: balance
+            maxOutputTokens: 4096
+            maxTokens: 4096
+            modelName: 豆包·2.0·lite
+            modelType: 1.772546477e+09
+            parameters:
+                max_completion_tokens: 0
+            responseFormat: 2
+            store: true
+            systemPrompt: ""
+        node_outputs:
+            QUESTION_DATA:
+                type: object
+                properties:
+                    options:
+                        type: list
+                        items:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                    value: null
+                            value: null
+                        value: null
+                    title:
+                        type: string
+                        value: null
+                value: null
+            optionContent:
+                type: string
+                value: null
+            optionId:
+                type: string
+                value: null
+        option_type: static
+        options:
+            - name: 换货
+            - name: 退货
+            - name: 退款
+        question: 您希望怎么处理
+    - id: "168461"
+      type: llm
+      title: 换货处理
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 1161
+        y: -145
+      parameters:
+        fcParam:
+            knowledgeFCParam:
+                global_setting:
+                    auto: false
+                    min_score: 0.5
+                    no_recall_reply_customize_prompt: 抱歉，您的问题超出了我的知识范围，并且无法在当前阶段回答
+                    no_recall_reply_mode: 0
+                    search_mode: 0
+                    show_source: false
+                    show_source_mode: 0
+                    top_k: 3
+                    use_nl2_sql: true
+                    use_rerank: true
+                    use_rewrite: true
+                knowledgeList:
+                    - id: "7638930467715252260"
+                      knowledgeType: 0
+                      name: shouhou_qing512
+        fcParamVar:
+            knowledgeFCParam:
+                knowledgeList: []
+        llmParam:
+            - name: modelType
+              input:
+                type: integer
+                value: "1768187121"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.8·深度思考
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: temperature
+              input:
+                type: float
+                value: "0.5"
+            - name: topP
+              input:
+                type: float
+                value: "1"
+            - name: frequencyPenalty
+              input:
+                type: float
+                value: "0"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: parameters
+              input:
+                type: object
+                properties:
+                    max_completion_tokens:
+                        type: integer
+                        value: "0"
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: 我购买了{{item}}，现在的状态是{{order_status}}，由于出现了这样的问题{{liyou}}，我要求{{suqiu}}
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: "# Role\n-description:你是一个专业的用户售后投诉处理专家，擅长处理用户的换货需求，在售后方面有着丰富的经验和专业的技能\n\n## background\n你需要根据户的诉求，确定处理方式，并以高情商的话语回答用户\n\n## skill\n调用{#LibraryBlock id=\"7638930467715252260\" uuid=\"dOHDDYm0AX8PjAzhNKD4U\" type=\"table\"#}shouhou_qing512{#/LibraryBlock#}确定具体的处理方式\n## workflow\n### 步骤一：问题的理解与回复分析\n1.认真理解知识库{#LibraryBlock id=\"7638930467715252260\" uuid=\"PnmUaHR9eK1EbEuIRX84V\" type=\"table\"#}shouhou_qing512{#/LibraryBlock#}召回的内容和用户输入的问题，判断召回的内容是否是用户问题的答案。\n2.如果你不能理解用户的问题，例如用户的问题太简单，不包含必要信息，此时你需要追问用户，直到你确定已理解了用户的问题和需求\n### 步骤二：回答用户问题\n1.经过你认真的判断后，确定用户的问题和投诉无关，那你拒绝回答。\n2.如果知识库内没有召回任何内容，你的话术可以参考“对不起暂时无法提供答案，如果你投诉其他问题，我会尝试帮你解答。”\n3.如果知识库召回了内容，那你的话术可以参照召回内容，然后以礼貌、具有亲和力的语言回答用户的问题。\n\n## limitation\n禁止回答以下相关内容，你必须根据用户的问题想一个礼貌但不失分寸的话术回答\n-个人隐私信息：包括但不限于真实姓名、电话号码、地址、ID、账号密码等个人敏感信息\n-违法违规内容：包括但不限于政治敏感话题、色情、暴力、赌博、侵权等违反法律法规和道德伦理的内容\n## 输出格式\n-风格：必须确保回答准确无误，有引用来源并且言简意赅，容易理解，你必须进行专业性与确定性的回复。\n-语言：你要以和用户输入的相同的语言来回答\n-回答长度：你的回答应该简洁清晰，不超过300字\n-要使用markdown格式回复\n## 问答示例\n### 示例一：正常问答\n-用户问题：我要投诉\n  答案：您好，,您的{{item}}现在正处于{{order_status}}状态，根据{#LibraryBlock id=\"7638930467715252260\" uuid=\"cYEUdD1cBnSX8h3iLU_I4\" type=\"table\"#}shouhou_qing512{#/LibraryBlock#}，您的诉求{{liyou}}满足要求，可以为您操作换货\n-用户问题：我要投诉\n  答案：您好，,您的{{item}}现在正处于{{order_status}}状态，根据{#LibraryBlock id=\"7638930467715252260\" uuid=\"cYEUdD1cBnSX8h3iLU_I4\" type=\"table\"#}shouhou_qing512{#/LibraryBlock#}，您的诉求{{liyou}}不满足换货要求，如还有疑问，请转人工服务\n### 示例二：不正常回答\n-用户问题：你是个笨蛋\n  答案：您好，请问您对于您的订单{{item}}有什么问题呢,请告诉我，我会尽量帮您解决\n  \n\n"
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: suqiu
+              input:
+                value:
+                    path: optionContent
+                    ref_node: "148428"
+            - name: liyou
+              input:
+                value:
+                    path: USER_RESPONSE
+                    ref_node: "174097"
+            - name: item
+              input:
+                type: string
+                value:
+                    path: outputList.item
+                    ref_node: "181773"
+            - name: order_status
+              input:
+                type: string
+                value:
+                    path: outputList.order_status
+                    ref_node: "181773"
+        node_outputs:
+            output:
+                type: string
+                value: null
+            reasoning_content:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            timeoutMs: 180000
+    - id: "184957"
+      type: llm
+      title: 退货处理
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 1173
+        y: 82
+      parameters:
+        fcParam:
+            knowledgeFCParam:
+                global_setting:
+                    auto: false
+                    min_score: 0.5
+                    no_recall_reply_customize_prompt: 抱歉，您的问题超出了我的知识范围，并且无法在当前阶段回答
+                    no_recall_reply_mode: 0
+                    search_mode: 0
+                    show_source: false
+                    show_source_mode: 0
+                    top_k: 3
+                    use_nl2_sql: true
+                    use_rerank: true
+                    use_rewrite: true
+                knowledgeList:
+                    - id: "7638930467715252260"
+                      knowledgeType: 0
+                      name: shouhou_qing512
+        fcParamVar:
+            knowledgeFCParam:
+                knowledgeList: []
+        llmParam:
+            - name: modelType
+              input:
+                type: integer
+                value: "1768187121"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.8·深度思考
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: temperature
+              input:
+                type: float
+                value: "0.5"
+            - name: topP
+              input:
+                type: float
+                value: "1"
+            - name: frequencyPenalty
+              input:
+                type: float
+                value: "0"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: parameters
+              input:
+                type: object
+                properties:
+                    max_completion_tokens:
+                        type: integer
+                        value: "0"
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: 我购买的商品是{{item}}，它现在的物流状态是{{order_status}}，现在由于出了{{USER_RESPONSE}}问题，我要求{{optionId}}
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: |
+                    # Role：售后退货处理专家
+                    - description：你是一个退货售后专家，在处理退货上具有非常丰富的经验。
+
+                    ## Background：
+                    用户因为购买的物品或者体验不满意，你需要给予客户合适的解释与安抚，并给出处理结果，缓解客户的情绪。
+
+                    ## Skill
+                    1.理解客户的问题，根据{#LibraryBlock id="7638930467715252260" uuid="Op4F95kMvboJNn1fUl_tJ" type="table"#}shouhou_qing512{#/LibraryBlock#}确定对用户的处理方案
+                    2.用礼貌、尊重、共情的语气回答用户
+
+                    ## Work flow
+                    ### 步骤一：问题的理解与回复分析
+                    1.认真理解从知识库{#LibraryBlock id="7638930467715252260" uuid="WvaZNMLcwt5LE4F03D0tp" type="table"#}shouhou_qing512{#/LibraryBlock#}召回的内容和用户的问题，判断确认召回的内容是否是用户问题的答案。
+                    2.如果你不能理解用户的问题，比如用户的问题太简单，不包含必要信息，那你就要追问用户，直到你确定已经理解了用户的问题
+                    ### 步骤二：回答用户问题
+                    1.根据对用户问题和召回内容的分析，回答用户的问题
+                    2.如果知识库没有召回任何内容，那你的话术可以参考“对不起，暂时无法提供答案，如果你有投诉其他相关问题，我会尝试帮你解答。
+                    ## 限制：
+                    ### 限制1:禁止回答的问题
+                    对于这些禁止回答的问题，你可以根据用户问题想一个合适的话术
+                    -个人隐私信息：包括但不限于真实姓名、电话号码、地址、账号信息等敏感信息
+                    -违法违规内容：包括但不限于政治敏感话题、色情、暴力、赌博、侵权、辱骂等违反法律法规和道德伦理的内容。
+                    ### 限制2：输出
+                    -风格：你必须确保你的回答准确无误，并且言简意赅，容易理解。你必须进行专业性与确定性的回复。
+                    -语言：你必须输出与用户输入相同的语言回答。
+                    -回答长度：你的答案应该简洁清晰不超过300字
+                    -一定要使用Markdown格式回复
+                    # 问答示例
+                    ### 示例1:正常回答
+                    用户问题：我要退货
+                    回答：好的，这个商品支持无理由退货，我帮您操作
+                    ### 示例2:非正常回答
+                    用户问题：你是笨蛋
+                    回答：您好·，请问您的订单有什么问题，可以告诉我您的订单问题哦
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: item
+              input:
+                type: string
+                value:
+                    path: outputList.item
+                    ref_node: "181773"
+            - name: order_status
+              input:
+                type: string
+                value:
+                    path: outputList.order_status
+                    ref_node: "181773"
+            - name: USER_RESPONSE
+              input:
+                value:
+                    path: USER_RESPONSE
+                    ref_node: "174097"
+            - name: optionId
+              input:
+                value:
+                    path: optionContent
+                    ref_node: "148428"
+        node_outputs:
+            output:
+                type: string
+                value: null
+            reasoning_content:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            timeoutMs: 180000
+    - id: "198965"
+      type: output
+      title: 退款人工服务
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 1215
+        y: 309
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: 您好，将为您转接人工服务……
+                type: literal
+        streamingOutput: false
+    - id: "159690"
+      type: output
+      title: 输出
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 1075
+        y: -299.0005
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: 没有查询到您的订单号，请您再确认一下
+                type: literal
+        streamingOutput: false
+    - id: "184266"
+      type: output
+      title: 输出_1
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 1575
+        y: 59.36875
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                content: '{{output}}{{output1}}'
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                value:
+                    path: output
+                    ref_node: "168461"
+            - name: output1
+              input:
+                value:
+                    path: output
+                    ref_node: "184957"
+        streamingOutput: false
+edges:
+    - source_node: "100001"
+      target_node: "163034"
+    - source_node: "159690"
+      target_node: "900001"
+    - source_node: "198965"
+      target_node: "900001"
+    - source_node: "184266"
+      target_node: "900001"
+    - source_node: "163034"
+      target_node: "181773"
+    - source_node: "181773"
+      target_node: "182485"
+    - source_node: "182485"
+      target_node: "174097"
+      source_port: "false"
+    - source_node: "182485"
+      target_node: "159690"
+      source_port: "true"
+    - source_node: "174097"
+      target_node: "148428"
+    - source_node: "148428"
+      target_node: "168461"
+      source_port: branch_0
+    - source_node: "148428"
+      target_node: "184957"
+      source_port: branch_1
+    - source_node: "148428"
+      target_node: "198965"
+      source_port: default
+    - source_node: "148428"
+      target_node: "198965"
+      source_port: branch_2
+    - source_node: "168461"
+      target_node: "184266"
+    - source_node: "184957"
+      target_node: "184266"
