@@ -1,0 +1,366 @@
+schema_version: 1.0.0
+name: kefu_qing5_12
+id: 7638815144667201599
+description: "基于内部rag回复用户并执行相应动作"
+mode: workflow
+icon: plugin_icon/workflow.png
+nodes:
+    - id: "100001"
+      type: start
+      title: 开始
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Start-v2.jpg
+      description: "工作流的起始节点，用于设定启动工作流需要的信息"
+      position:
+        x: 0
+        y: 0
+      parameters:
+        node_outputs:
+            userID:
+                type: integer
+                value: null
+            username:
+                type: string
+                value: null
+            xuqiu:
+                type: string
+                value: null
+    - id: "900001"
+      type: end
+      title: 结束
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-End-v2.jpg
+      description: "工作流的最终节点，用于返回工作流运行后的结果信息"
+      position:
+        x: 1459.0340136054422
+        y: -48.12330952380957
+      parameters:
+        terminatePlan: returnVariables
+    - id: "119604"
+      type: intent
+      title: 意图识别
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Intent-v2.jpg
+      description: "用于用户输入的意图识别，并将其与预设意图选项进行匹配。"
+      position:
+        x: 441
+        y: -90
+      parameters:
+        chatHistorySetting:
+            chatHistoryRound: 3
+            enableChatHistory: false
+        intents:
+            - name: 订单查询
+            - name: 客户投诉
+            - name: 商品推荐
+        llmParam:
+            chatHistoryRound: 3
+            enableChatHistory: false
+            frequencyPenalty: 0
+            generationDiversity: default_val
+            maxTokens: 4096
+            modelName: 豆包·1.6·极致速度·250828
+            modelType: 1.761035614e+09
+            parameters:
+                max_completion_tokens: 0
+            prompt:
+                type: string
+                value:
+                    content: '{{query}}'
+                    type: literal
+            responseFormat: 2
+            systemPrompt:
+                type: string
+                value:
+                    content: ""
+                    type: literal
+            temperature: 1
+            thinkingType: disabled
+            topP: 0.7
+        mode: top_speed
+        node_inputs:
+            - name: query
+              input:
+                value:
+                    path: xuqiu
+                    ref_node: "100001"
+        node_outputs:
+            classificationId:
+                type: integer
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            timeoutMs: 60000
+        version: "2"
+    - id: "136581"
+      type: subflow
+      title: tousu_qing512
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Workflow-v2.jpg
+      description: "客服机器人投诉工作流"
+      position:
+        x: 946.1346938775512
+        y: -48.12330952380957
+      parameters:
+        inputDefs:
+            - input: {}
+              name: input
+              required: false
+              type: string
+        settingOnError: {}
+        spaceId: "7441601665985462272"
+        type: 0
+        workflowId: "7638904760863506466"
+        workflowVersion: v0.0.1
+    - id: "152402"
+      type: llm
+      title: 闲聊对话
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-LLM-v2.jpg
+      description: "调用大语言模型,使用变量和提示词生成回复"
+      version: "3"
+      position:
+        x: 908.3918367346939
+        y: 266.1651258503401
+      parameters:
+        fcParamVar:
+            knowledgeFCParam: {}
+        llmParam:
+            - name: modelType
+              input:
+                type: integer
+                value: "1768187121"
+            - name: modelName
+              input:
+                type: string
+                value: 豆包·1.8·深度思考
+            - name: generationDiversity
+              input:
+                type: string
+                value: balance
+            - name: temperature
+              input:
+                type: float
+                value: "0.5"
+            - name: topP
+              input:
+                type: float
+                value: "1"
+            - name: frequencyPenalty
+              input:
+                type: float
+                value: "0"
+            - name: maxTokens
+              input:
+                type: integer
+                value: "4096"
+            - name: spCurrentTime
+              input:
+                type: boolean
+                value: false
+            - name: spAntiLeak
+              input:
+                type: boolean
+                value: false
+            - name: responseFormat
+              input:
+                type: integer
+                value: "2"
+            - name: parameters
+              input:
+                type: object
+                properties:
+                    max_completion_tokens:
+                        type: integer
+                        value: "0"
+                value: null
+            - name: prompt
+              input:
+                type: string
+                value: '{{usderName}}{{input}}'
+            - name: enableChatHistory
+              input:
+                type: boolean
+                value: false
+            - name: chatHistoryRound
+              input:
+                type: integer
+                value: "3"
+            - name: systemPrompt
+              input:
+                type: string
+                value: |
+                    # 角色
+                    智能客服
+                    ## 注意
+                    智能客服的专家设计旨在为客户提供高效、准确的信息服务，确保用户体验的优化
+                    ## 性格类型指标
+                    ESFJ（外向感觉情感判断型）
+                    ## 背景
+                    智能客服是一种虚拟角色，旨在通过人工智能技术，为用户提供准确、快速、高效的信息查询和问答服务。用户的名字叫做{{usderName}}，用户说了{{input}}
+                    ## 约束条件
+                    -应保持礼貌、耐心、不得使用冒犯性语言
+                    ## 定义
+                    智能客服：一种能够利用人工智能技术实现的，能够自动回答用户问题的虚拟客服角色
+                    ## 目标：
+                    1.提供准确、及时的信息查询服务
+                    2.解答用户疑问，提升用户满意度
+                    3.优化用户体验，增强用户对本店服务的信任感
+
+                    ## Skill
+                    1.强大的信息检索能力
+                    2.优秀的语言表达和理解能力
+                    3.快速响应和问题解决能力
+
+                    ## 风格
+                    -语气风格友好、耐心、专业
+
+                    ## 价值观
+                    -用户至上：始终以用户需求为中心，提供优质服务
+                    -持续改进：不断优化服务流程，提高服务质量，增强用户体验
+                    -诚实守信：确保提供的信息真实可靠，不误导用户
+
+                    ## 工作流程
+                    1.接收用户输入的问题或者需求
+                    2.理解分析用户的问题
+                    3.提供准确清晰的回答与解决方案
+                    4.尽力围绕本店的商品类型进行沟通，尽量引导用户在本店想购买什么
+            - name: stableSystemPrompt
+              input:
+                type: string
+                value: ""
+            - name: canContinue
+              input:
+                type: boolean
+                value: false
+            - name: loopPromptVersion
+              input:
+                type: string
+                value: ""
+            - name: loopPromptName
+              input:
+                type: string
+                value: ""
+            - name: loopPromptId
+              input:
+                type: string
+                value: ""
+        node_inputs:
+            - name: usderName
+              input:
+                value:
+                    path: username
+                    ref_node: "100001"
+            - name: input
+              input:
+                value:
+                    path: xuqiu
+                    ref_node: "100001"
+        node_outputs:
+            output:
+                type: string
+                value: null
+            reasoning_content:
+                type: string
+                value: null
+        settingOnError:
+            processType: 1
+            retryTimes: 0
+            switch: false
+            timeoutMs: 180000
+    - id: "110995"
+      type: subflow
+      title: kefu_dingdan_qingqing512
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Workflow-v2.jpg
+      description: "订单查询"
+      position:
+        x: 925.2693877551021
+        y: -248.02398979591845
+      parameters:
+        inputDefs:
+            - input: {}
+              name: input
+              required: true
+              type: string
+            - input: {}
+              name: username
+              required: true
+              type: string
+        node_inputs:
+            - name: input
+              input:
+                value:
+                    path: xuqiu
+                    ref_node: "100001"
+            - name: username
+              input:
+                value:
+                    path: username
+                    ref_node: "100001"
+        settingOnError: {}
+        spaceId: "7441601665985462272"
+        type: 0
+        workflowId: "7638815463304347699"
+        workflowVersion: v0.0.2
+    - id: "162699"
+      type: subflow
+      title: tuijian_qing512
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Workflow-v2.jpg
+      description: "推荐商品"
+      position:
+        x: 946.1346938775512
+        y: 130.03315306122445
+      parameters:
+        inputDefs:
+            - input: {}
+              name: input
+              required: false
+              type: string
+        settingOnError: {}
+        spaceId: "7441601665985462272"
+        type: 0
+        workflowId: "7639193676296863807"
+        workflowVersion: v0.0.2
+    - id: "105611"
+      type: output
+      title: 输出
+      icon: https://lf3-static.bytednsdoc.com/obj/eden-cn/dvsmryvd_avi_dvsm/ljhwZthlaukjlkulzlp/icon/icon-Output-v2.jpg
+      description: "节点从“消息”更名为“输出”，支持中间过程的消息输出，支持流式和非流式两种方式"
+      position:
+        x: 1325.8299319727894
+        y: 266.1651258503401
+      parameters:
+        callTransferVoice: true
+        chatHistoryWriting: historyWrite
+        content:
+            type: string
+            value:
+                type: literal
+        node_inputs:
+            - name: output
+              input:
+                value:
+                    path: output
+                    ref_node: "152402"
+        streamingOutput: false
+edges:
+    - source_node: "100001"
+      target_node: "119604"
+    - source_node: "136581"
+      target_node: "900001"
+    - source_node: "110995"
+      target_node: "900001"
+    - source_node: "162699"
+      target_node: "900001"
+    - source_node: "105611"
+      target_node: "900001"
+    - source_node: "119604"
+      target_node: "136581"
+      source_port: branch_1
+    - source_node: "119604"
+      target_node: "152402"
+      source_port: default
+    - source_node: "119604"
+      target_node: "110995"
+      source_port: branch_0
+    - source_node: "119604"
+      target_node: "162699"
+      source_port: branch_2
+    - source_node: "152402"
+      target_node: "105611"
